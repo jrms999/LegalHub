@@ -13,7 +13,7 @@ from ..templates import (
 )
 
 
-DOCS_DIR = Path("generated_docs")
+DOCS_DIR = Path(__file__).resolve().parent.parent / "generated_docs"
 DOCS_DIR.mkdir(exist_ok=True)
 
 
@@ -63,6 +63,7 @@ def build_context_for_claim(claim: models.Claim) -> dict:
         },
         "claim": {
             "amount_claimed": claim.amount_claimed,
+            "claim_type": claim.claim_type,
             "dispute_summary_one_liner": claim.dispute_summary_one_liner or "",
             "facts_narrative": claim.facts_summary,
             "pre_action_steps": claim.pre_action_steps or "",

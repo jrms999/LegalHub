@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+*.db
+*.db-*
+legalhub/backend/generated_docs/
+.env
+node_modules/
+.next/
