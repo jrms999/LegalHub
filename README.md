@@ -1,31 +1,46 @@
 # LegalHub
 
-**Status: early LawTech prototype.** This repository explores a guided claim intake flow for Scotland and England and Wales. It has a Next.js wizard and a FastAPI/SQLAlchemy backend for storing claim details and generating draft text files. The generated documents are currently **one-line placeholder templates** and are not suitable for filing with a court.
+**Status: local, single-user LawTech prototype.** LegalHub explores a guided claim-intake flow for Scotland and England and Wales. The Next.js wizard saves a claim through FastAPI and can generate plain-text drafts. It is not a filing service, legal advice, or a source of court-ready forms.
 
-The goal is to make legal-form preparation easier to follow, including for people who benefit from plain language and a step-by-step process. The prototype does not give legal advice or decide whether a claim is appropriate.
+## What works
 
-## What is in the repository
+- Scotland and England and Wales intake screens; claim CRUD backed by SQLAlchemy.
+- SQLite local demo database by default; an optional `DATABASE_URL` can point to another SQLAlchemy-supported database with the corresponding driver installed.
+- A local demo identity created on first request. This is **not authentication**: all requests share its records. Run only on your own computer using invented information.
+- Scotland draft case summary, item list and timeline with fictional-data API smoke test. The England and Wales letter and particulars remain placeholders.
 
-- `legalhub/frontend`: Next.js 14 and TypeScript pages for Scotland and England and Wales claim intake.
-- `legalhub/backend`: FastAPI claim CRUD, SQLAlchemy models, and draft text generation.
-- `legalhub/backend/templates.py`: placeholder Jinja templates, not court forms.
+## Run locally
 
-## Current limitations
+From the repository root (Python 3.10+):
 
-- The backend uses a hard-coded local PostgreSQL URL in `database.py`; no database or migration setup is supplied.
-- `get_current_user_id()` returns user ID `1`. There is no real login or separation between users.
-- The frontend expects an API at `http://localhost:8000` and does not yet expose configuration for another address.
-- Generated outputs are short placeholders, with no validation against current court rules or independent legal review.
-- No automated test suite or deployable production configuration is included.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r legalhub/backend/requirements.txt
+uvicorn legalhub.backend.main:app --host 127.0.0.1 --port 8000
+```
 
-Do not enter real personal case information into a shared or publicly reachable deployment of this prototype.
+In a second terminal:
 
-## Development path
+```bash
+cd legalhub/frontend
+npm install
+npm run dev
+```
 
-1. Make local startup reproducible with environment-based database configuration and corrected Python package/dependency setup.
-2. Define one narrow Scotland Simple Procedure intake journey with validated fields and safe example data.
-3. Generate a useful **draft** summary and timeline, reviewed against official court guidance before any broader claim.
-4. Add user authentication, access controls, tests, and a privacy review before accepting real case data.
-5. Document an England and Wales flow separately, including its own rules and templates.
+Open `http://localhost:3000`. The frontend calls `http://localhost:8000`. The local database is `legalhub/backend/legalhub_demo.db`; generated draft text files are under `legalhub/backend/generated_docs/`. Both paths are git-ignored. To start fresh, stop the API and remove the demo database and generated drafts. `DATABASE_URL` can override the SQLite location; schema migrations are not implemented.
 
-For the current code layout, see [`legalhub/README.md`](legalhub/README.md). Its earlier run command is being replaced here because the backend uses package-relative imports and requires a configured database. This repository is a development prototype, not a court filing service.
+Run the backend smoke test from the repository root:
+
+```bash
+python -m unittest legalhub.backend.tests -v
+```
+
+The Scotland wizard currently reports generated document types, while draft files are saved locally by the API. It does not display or download the draft in the browser. Its England and Wales flow is less complete. Do not enter actual case details or expose this server publicly.
+
+## Next engineering milestones
+
+1. Add authenticated accounts, record-level authorisation, a privacy review and migration tooling before any multi-user use.
+2. Show and download reviewed drafts in the UI, with editable facts and clear validation errors.
+3. Check jurisdiction-specific requirements against authoritative guidance and obtain legal review before suggesting filing use.
+4. Add end-to-end tests and deployment safeguards; do not treat this local demo as production-ready.

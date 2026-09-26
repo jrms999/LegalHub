@@ -1,20 +1,25 @@
 from datetime import date, datetime
 from typing import List, Optional
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from .models import Jurisdiction, PartyRole
 
 
 class PartyBase(BaseModel):
     role: PartyRole
     is_company: bool = False
-    name: str
-    address_line1: str
+    name: str = Field(min_length=1, max_length=200)
+    address_line1: str = Field(min_length=1, max_length=200)
     address_line2: Optional[str] = None
-    town_city: str
-    postcode: str
+    town_city: str = Field(min_length=1, max_length=100)
+    postcode: str = Field(min_length=1, max_length=20)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     other_names: Optional[str] = None
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def blank_email_is_missing(cls, value):
+        return None if value == "" else value
 
 
 class PartyCreate(PartyBase):
@@ -47,7 +52,7 @@ class Event(EventBase):
 
 class LossItemBase(BaseModel):
     label: str
-    amount: float
+    amount: float = Field(ge=0)
     date_incurred: Optional[date] = None
 
 
@@ -82,12 +87,12 @@ class EvidenceItem(EvidenceItemBase):
 class ClaimBase(BaseModel):
     jurisdiction: Jurisdiction
     claim_type: str
-    amount_claimed: float
+    amount_claimed: float = Field(ge=0)
     interest_requested: bool = False
     interest_rate: Optional[float] = None
     interest_from: Optional[date] = None
-    facts_summary: str
-    desired_outcome: str
+    facts_summary: str = Field(min_length=1)
+    desired_outcome: str = Field(min_length=1)
     pre_action_steps: Optional[str] = None
     dispute_summary_one_liner: Optional[str] = None
     court_name: Optional[str] = None

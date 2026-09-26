@@ -25,14 +25,21 @@ app.add_middleware(
 )
 
 
-def get_current_user_id() -> int:
-    return 1
+def get_current_user_id(db: Session = Depends(get_db)) -> int:
+    """Create a local demo identity. This is not authentication."""
+    user = db.query(models.User).filter_by(email="demo@legalhub.invalid").first()
+    if user is None:
+        user = models.User(email="demo@legalhub.invalid", full_name="Local demo")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    return user.id
 
 
 @app.post("/claims", response_model=schemas.Claim)
 def create_claim(
     claim_in: schemas.ClaimCreate,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claim = crud.create_claim(db, user_id, claim_in)
@@ -41,7 +48,7 @@ def create_claim(
 
 @app.get("/claims", response_model=List[schemas.Claim])
 def list_user_claims(
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claims = crud.list_claims(db, user_id)
@@ -51,7 +58,7 @@ def list_user_claims(
 @app.get("/claims/{claim_id}", response_model=schemas.Claim)
 def get_claim(
     claim_id: int,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claim = crud.get_claim(db, claim_id, user_id)
@@ -64,7 +71,7 @@ def get_claim(
 def update_claim(
     claim_id: int,
     updates: schemas.ClaimUpdate,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claim = crud.get_claim(db, claim_id, user_id)
@@ -77,7 +84,7 @@ def update_claim(
 @app.post("/claims/{claim_id}/generate")
 def generate_claim_documents(
     claim_id: int,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claim = crud.get_claim(db, claim_id, user_id)
@@ -91,7 +98,7 @@ def generate_claim_documents(
 @app.get("/claims/{claim_id}/documents", response_model=List[schemas.Document])
 def list_claim_documents(
     claim_id: int,
-    db: Session = Depends(get_db()),
+    db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user_id),
 ):
     claim = crud.get_claim(db, claim_id, user_id)
