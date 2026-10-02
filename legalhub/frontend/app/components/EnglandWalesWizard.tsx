@@ -8,8 +8,12 @@ export function EnglandWalesWizard() {
   const [form, setForm] = React.useState({
     claimantName: "",
     claimantAddress: "",
+    claimantTown: "",
+    claimantPostcode: "",
     defendantName: "",
     defendantAddress: "",
+    defendantTown: "",
+    defendantPostcode: "",
     amount_claimed: 0,
     summary: "",
     facts_summary: "",
@@ -43,8 +47,8 @@ export function EnglandWalesWizard() {
             name: form.claimantName,
             address_line1: form.claimantAddress,
             address_line2: "",
-            town_city: "",
-            postcode: "",
+            town_city: form.claimantTown,
+            postcode: form.claimantPostcode,
             email: "",
             phone: "",
             other_names: ""
@@ -55,8 +59,8 @@ export function EnglandWalesWizard() {
             name: form.defendantName,
             address_line1: form.defendantAddress,
             address_line2: "",
-            town_city: "",
-            postcode: "",
+            town_city: form.defendantTown,
+            postcode: form.defendantPostcode,
             email: "",
             phone: "",
             other_names: ""
@@ -100,6 +104,22 @@ export function EnglandWalesWizard() {
       />
       <input
         className="border rounded w-full p-2"
+        placeholder="Your town or city"
+        value={form.claimantTown}
+        onChange={(e) =>
+          setForm({ ...form, claimantTown: e.target.value })
+        }
+      />
+      <input
+        className="border rounded w-full p-2"
+        placeholder="Your postcode"
+        value={form.claimantPostcode}
+        onChange={(e) =>
+          setForm({ ...form, claimantPostcode: e.target.value })
+        }
+      />
+      <input
+        className="border rounded w-full p-2"
         placeholder="Defendant name"
         value={form.defendantName}
         onChange={(e) =>
@@ -112,6 +132,22 @@ export function EnglandWalesWizard() {
         value={form.defendantAddress}
         onChange={(e) =>
           setForm({ ...form, defendantAddress: e.target.value })
+        }
+      />
+      <input
+        className="border rounded w-full p-2"
+        placeholder="Defendant town or city"
+        value={form.defendantTown}
+        onChange={(e) =>
+          setForm({ ...form, defendantTown: e.target.value })
+        }
+      />
+      <input
+        className="border rounded w-full p-2"
+        placeholder="Defendant postcode"
+        value={form.defendantPostcode}
+        onChange={(e) =>
+          setForm({ ...form, defendantPostcode: e.target.value })
         }
       />
     </div>,
