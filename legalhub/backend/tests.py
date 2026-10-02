@@ -65,5 +65,35 @@ class ClaimFlowTest(unittest.TestCase):
                 doc_generation.DOCS_DIR = old_dir
 
 
+    def test_england_wales_claim_requires_complete_addresses(self):
+        party = {
+            "address_line1": "1 Example Street",
+            "town_city": "Manchester",
+            "postcode": "M1 1AA",
+        }
+        payload = {
+            "jurisdiction": "ENGLAND_WALES",
+            "claim_type": "MONEY",
+            "amount_claimed": 75,
+            "facts_summary": "A fictional payment was not received.",
+            "desired_outcome": "Payment of the fictional balance.",
+            "parties": [
+                {**party, "role": "CLAIMANT", "name": "Alex Example"},
+                {**party, "role": "DEFENDANT", "name": "Casey Example"},
+            ],
+        }
+        result = self.client.post("/claims", json=payload)
+        self.assertEqual(result.status_code, 200, result.text)
+        self.assertEqual(result.json()["jurisdiction"], "ENGLAND_WALES")
+
+        invalid = {
+            **payload,
+            "parties": [
+                {**party, "role": "CLAIMANT", "name": "Alex Example", "postcode": ""},
+                {**party, "role": "DEFENDANT", "name": "Casey Example"},
+            ],
+        }
+        self.assertEqual(self.client.post("/claims", json=invalid).status_code, 422)
+
 if __name__ == "__main__":
     unittest.main()
